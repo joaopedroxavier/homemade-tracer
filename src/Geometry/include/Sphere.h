@@ -1,20 +1,23 @@
-#ifndef SPHEREH
-#define SPHEREH
+#pragma once
 
 #include "Hitable.h"
+
+namespace Material {
+class Scatterable;
+} // namespace Material
 
 namespace Geometry {
 
 class Sphere : public Hitable {
-public: 
-    Sphere() : center(), radius(0) {}
-    Sphere(Vector3 c, float r) : center(c), radius(r) {}
+public:
+    Sphere() : mat(nullptr), center(), radius(0) {}
+    Sphere(Material::Scatterable* mat, Vector3 c, float r) : mat(mat), center(c), radius(r) {}
 
     virtual bool hit(const Ray& r, float tMin, float tMax, HitRecord& record) const;
 private:
+    Material::Scatterable* mat;
     Vector3 center;
     float radius;
 };
 
 } // namespace Geometry
-#endif

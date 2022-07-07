@@ -1,5 +1,4 @@
-#ifndef HITABLELISTH
-#define HITABLELISTH
+#pragma once
 
 #include "Hitable.h"
 
@@ -17,5 +16,3 @@ private:
 };
 
 } // namespace Geometry
-
-#endif

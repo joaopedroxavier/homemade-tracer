@@ -1,24 +1,22 @@
-#ifndef DIFFUSEH 
-#define DIFFUSEH
+#pragma once
 
 #include "Ray.h"
 #include "Vector3.h"
 #include "Hitable.h"
-#include "Reflectable.h"
+#include "Scatterable.h"
 
 namespace Material {
 
-class Diffuse : public Reflectable {
+class Diffuse : public Scatterable {
 public:
-    Diffuse() : color() {}
-    Diffuse(Geometry::Vector3 c) : color(c) {}
+    Diffuse() : albedo() {}
+    Diffuse(Geometry::Vector3 c) : albedo(c) {}
 
-    virtual Geometry::Ray reflect(const Geometry::HitRecord& record) const;
-
+    virtual ScatterRecord scatter(
+            const Geometry::Ray& r,
+            const Geometry::HitRecord& record) const;
 private:
-    Geometry::Vector3 color;
+    Geometry::Vector3 albedo;
 };
 
 } // namespace Material
-
-#endif

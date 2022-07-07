@@ -1,5 +1,4 @@
-#ifndef CAMERAH
-#define CAMERAH
+#pragma once
 
 #include "Ray.h"
 #include "Vector3.h"
@@ -15,7 +14,9 @@ public:
         vertical = Geometry::Vector3(0.0, 2.0, 0.0);
     }
 
-    Geometry::Ray getRay(float u, float v) { return Geometry::Ray(origin, lowerLeftCorner + u * horizontal + v * vertical - origin); }
+    Geometry::Ray getRay(float u, float v) { 
+        return Geometry::Ray(origin, lowerLeftCorner + u * horizontal + v * vertical - origin); 
+    }
 
 private:
     Geometry::Vector3 origin;
@@ -25,5 +26,3 @@ private:
 };
 
 } // namespace Material
-
-#endif

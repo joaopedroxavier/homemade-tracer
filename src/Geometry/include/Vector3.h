@@ -1,5 +1,4 @@
-#ifndef VECTOR3H
-#define VECTOR3H
+#pragma once
 
 #include <iostream>
 #include <cmath>
@@ -171,5 +170,3 @@ inline Vector3 Vector3::unit() {
 }
 
 } // namespace Geometry
-
-#endif

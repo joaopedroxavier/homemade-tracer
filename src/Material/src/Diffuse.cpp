@@ -1,17 +1,19 @@
 #include <cstdlib>
 #include <ctime>
 #include <cmath>
+#include <tuple>
 
+#include "Common.h"
 #include "Diffuse.h"
+
+const float PI = acos(-1);
 
 namespace Material {
 
 Geometry::Vector3 randomInUnitSphere() {
-    srand (static_cast <unsigned> (time(0)));
-
-    float r = static_cast<float> (rand()) / static_cast<float> (RAND_MAX);
-    float theta = static_cast<float> (rand()) / static_cast<float> (RAND_MAX);
-    float phi = static_cast<float> (rand()) / static_cast<float> (RAND_MAX);
+    float r = Common::getRandomFloat();
+    float theta = 2 * PI * Common::getRandomFloat();
+    float phi = 2 * PI * Common::getRandomFloat();
 
     return {
         r * cos(theta) * cos(phi),
@@ -20,9 +22,17 @@ Geometry::Vector3 randomInUnitSphere() {
     };
 }
 
-Geometry::Ray Diffuse::reflect(const Geometry::HitRecord& record) const {
-    Geometry::Vector3 reflection = record.hitPoint + (record.surfaceNormal/ (!record.surfaceNormal)) + randomInUnitSphere();
-    return { record.hitPoint, reflection - record.hitPoint };
+ScatterRecord Diffuse::scatter(
+        const Geometry::Ray& r,
+        const Geometry::HitRecord& record) const {
+    Geometry::Vector3 target = record.hitPoint + record.surfaceNormal + randomInUnitSphere();
+    Geometry::Ray scattered = Geometry::Ray(record.hitPoint, target - record.hitPoint);
+
+    return {
+        true,
+        albedo,
+        Geometry::Ray(record.hitPoint, target - record.hitPoint)
+    };
 }
 
 } // namespace Material

@@ -1,5 +1,4 @@
-#ifndef RAYH
-#define RAYH
+#pragma once
 
 #include "Vector3.h"
 
@@ -20,5 +19,3 @@ private:
 };
 
 } // namespace Geometry
-
-#endif

@@ -51,6 +51,7 @@ bool Sphere::hit(const Ray& r, float tMin, float tMax, HitRecord& record) const 
         record.t = firstSol;
         record.hitPoint = r.at(firstSol);
         record.surfaceNormal = (record.hitPoint - center) / radius;
+        record.material = mat;
         return true;
     }
 
@@ -59,6 +60,7 @@ bool Sphere::hit(const Ray& r, float tMin, float tMax, HitRecord& record) const 
         record.t = secondSol;
         record.hitPoint = r.at(secondSol);
         record.surfaceNormal = (record.hitPoint - center) / radius;
+        record.material = mat;
         return true;
     }
 
