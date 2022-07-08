@@ -10,6 +10,7 @@
 #include "Camera.h"
 #include "Scatterable.h"
 #include "Diffuse.h"
+#include "Metallic.h"
 
 using namespace Common;
 using namespace Geometry;
@@ -55,16 +56,20 @@ int main() {
     int ns = 20;
     std::cout << "P3\n" << nx << " " << ny << "\n255\n";
 
-    Hitable* list[2];
+    Hitable* list[3];
     list[0] = new Sphere(
-        new Diffuse(Vector3(0.8, 0.3, 0.3)),
+        new Metallic(Vector3(0.3, 0.3, 0.3)),
         Vector3(0, -100.5, -1),
         100);
     list[1] = new Sphere(
-        new Diffuse(Vector3(0.8, 0.0, 0.8)),
-        Vector3(0, 0, -1),
+        new Metallic(Vector3(0.8, 0.8, 0.8)),
+        Vector3(0.6, 0.2, -1.5),
         0.5);
-    Hitable* world = new HitableList(list, 2);
+    list[2] = new Sphere(
+        new Diffuse(Vector3(0.8, 0.0, 0.8)),
+        Vector3(-0.6, 0.2, -1.5),
+        0.5);
+    Hitable* world = new HitableList(list, 3);
     Camera cam;
     for (int j = ny - 1; j >= 0; j--) {
         for (int i = 0; i < nx; i++) {

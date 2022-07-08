@@ -4,6 +4,7 @@ project(RayTracing)
 
 add_subdirectory(src/Geometry)
 add_subdirectory(src/Material)
+add_subdirectory(src/Common)
 
 # add the executable
 add_executable(RayTracing src/RayTracing.cpp)
@@ -11,4 +12,5 @@ add_executable(RayTracing src/RayTracing.cpp)
 target_link_libraries(RayTracing PRIVATE 
     Geometry
     Material
+    Common
 )
