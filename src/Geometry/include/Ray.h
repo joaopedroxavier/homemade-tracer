@@ -7,7 +7,7 @@ namespace Geometry {
 class Ray {
 public:
     Ray() {}
-    Ray(const Vector3& a, const Vector3& b): src(a), dir(b) {}
+    Ray(const Vector3& a, const Vector3& b): src(a), dir(b/(!b)) {}
 
     Vector3 source() const { return src; }
     Vector3 direction() const { return dir; }

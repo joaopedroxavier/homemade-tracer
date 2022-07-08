@@ -1,6 +1,8 @@
-set(SOURCES src/Diffuse.cpp)
+set(SOURCES src/Diffuse.cpp
+	    src/Metallic.cpp)
 
 set(HEADERS include/Diffuse.h 
+	    include/Metallic.h
             include/Scatterable.h 
             include/Camera.h
 )
