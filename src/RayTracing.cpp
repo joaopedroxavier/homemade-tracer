@@ -11,6 +11,7 @@
 #include "Scatterable.h"
 #include "Diffuse.h"
 #include "Metallic.h"
+#include "Glass.h"
 
 using namespace Common;
 using namespace Geometry;
@@ -25,7 +26,14 @@ const int MAX_DEPTH = 50;
 
 // t: parameter to create a gradient effect on background.
 Vector3 background(float t) {
-    return (1.0 - t) * Vector3(1.0, 1.0, 1.0) + t * Vector3(0.5, 0.7, 1.0);
+    float brightness = 1.5;
+    Vector3 col = brightness * ((1.0 - t) * Vector3(0.05137, 0.15294, 1.0) + 
+                                t * Vector3(0.99215, 0.60784, 0.10980));
+    return Vector3(
+        std::min(col.r(), 1.0f),
+        std::min(col.g(), 1.0f),
+        std::min(col.b(), 1.0f)
+    );
 }
 
 Vector3 color(const Ray& r, Hitable* world, int depth) {
@@ -44,7 +52,7 @@ Vector3 color(const Ray& r, Hitable* world, int depth) {
         }
     }
     else {
-        Vector3 unitDirection = r.direction().unit();
+        Vector3 unitDirection = r.direction() / (!r.direction());
         float t = 0.5 * (unitDirection.y() + 1.0);
         return background(t);
     }
@@ -53,21 +61,21 @@ Vector3 color(const Ray& r, Hitable* world, int depth) {
 int main() {
     int nx = 600;
     int ny = 300;
-    int ns = 20;
+    int ns = 100;
     std::cout << "P3\n" << nx << " " << ny << "\n255\n";
 
     Hitable* list[3];
     list[0] = new Sphere(
-        new Metallic(Vector3(0.3, 0.3, 0.3)),
+        new Metallic(Vector3(0.8, 0.8, 0.8)),
         Vector3(0, -100.5, -1),
         100);
     list[1] = new Sphere(
-        new Metallic(Vector3(0.8, 0.8, 0.8)),
-        Vector3(0.6, 0.2, -1.5),
+        new Glass(1.2),
+        Vector3(0.6, 0.0, -1.5),
         0.5);
     list[2] = new Sphere(
         new Diffuse(Vector3(0.8, 0.0, 0.8)),
-        Vector3(-0.6, 0.2, -1.5),
+        Vector3(-0.6, 0.0, -1.5),
         0.5);
     Hitable* world = new HitableList(list, 3);
     Camera cam;
@@ -94,5 +102,8 @@ int main() {
             //std::cerr << returned << ": " << ir << " " << ig << " " << ib << std::endl;
         }
     }
+
+    std::cerr << "Successfully populated the PPM file." << std::endl;
+
     return 0;
 }

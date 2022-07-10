@@ -1,10 +1,12 @@
 set(SOURCES src/Diffuse.cpp
-	    src/Metallic.cpp)
+	    src/Metallic.cpp
+      src/Glass.cpp)
 
 set(HEADERS include/Diffuse.h 
 	    include/Metallic.h
-            include/Scatterable.h 
-            include/Camera.h
+      include/Glass.h
+      include/Scatterable.h 
+      include/Camera.h
 )
 
 add_library(Material STATIC ${SOURCES} ${HEADERS})

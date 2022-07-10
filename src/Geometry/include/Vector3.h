@@ -31,8 +31,7 @@ public:
     inline Vector3& operator *= (const Vector3& v);
     inline Vector3& operator /= (float k);
     inline Vector3& operator *= (float k);
-
-    inline Vector3 unit();
+    inline float operator ! ();
 
 private:
     float e[3];
@@ -165,8 +164,10 @@ inline Vector3& Vector3::operator /=(float k) {
     return *this;
 }
 
-inline Vector3 Vector3::unit() {
-    return (*this) / !(*this);
+inline float Vector3::operator !() {
+    return sqrt((*this) * (*this));
 }
+
+Vector3 reflect(const Vector3& v, const Vector3& n);
 
 } // namespace Geometry
