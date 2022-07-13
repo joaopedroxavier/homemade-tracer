@@ -18,17 +18,20 @@ using namespace Geometry;
 using namespace Material;
 
 const Vector3 NO_COLOR = Vector3(0.0, 0.0, 0.0);
+const Vector3 COLOR_1 = Vector3(195, 20, 50);
+const Vector3 COLOR_2 = Vector3(36, 11, 54);
 
-const float PI = acos(-1);
 const float INF = 1e9;
 
 const int MAX_DEPTH = 50;
 
+
 // t: parameter to create a gradient effect on background.
 Vector3 background(float t) {
     float brightness = 1.5;
-    Vector3 col = brightness * ((1.0 - t) * Vector3(0.05137, 0.15294, 1.0) + 
-                                t * Vector3(0.99215, 0.60784, 0.10980));
+    Vector3 col = COLOR_1 * (1.0 - t) + COLOR_2 * t;
+    col = brightness * col / 255.99;
+
     return Vector3(
         std::min(col.r(), 1.0f),
         std::min(col.g(), 1.0f),
@@ -66,19 +69,25 @@ int main() {
 
     Hitable* list[3];
     list[0] = new Sphere(
-        new Metallic(Vector3(0.8, 0.8, 0.8)),
-        Vector3(0, -100.5, -1),
-        100);
+        new Metallic(Vector3(0.5, 0.5, 0.5)),
+        Vector3(0, -200.5, -1),
+        200);
     list[1] = new Sphere(
         new Glass(1.2),
         Vector3(0.6, 0.0, -1.5),
         0.5);
     list[2] = new Sphere(
-        new Diffuse(Vector3(0.8, 0.0, 0.8)),
+        new Diffuse(Vector3(0.2, 0.2, 0.2)),
         Vector3(-0.6, 0.0, -1.5),
         0.5);
+
     Hitable* world = new HitableList(list, 3);
-    Camera cam;
+    Camera cam = Camera(
+        Vector3(-1.5, 1.5, 0.5),
+        Vector3(0, 0, -1), 
+        Vector3(0, 1, 0), 
+        90, float(nx) / float(ny));
+
     for (int j = ny - 1; j >= 0; j--) {
         for (int i = 0; i < nx; i++) {
             Vector3 col(0, 0, 0);

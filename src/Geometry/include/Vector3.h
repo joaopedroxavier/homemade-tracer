@@ -7,6 +7,7 @@
 namespace Geometry {
 
 const float EPS = float(1e-9);
+const float PI = acos(-1);
 
 class Vector3 {
 public:
