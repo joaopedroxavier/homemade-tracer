@@ -1,5 +1,7 @@
 #include <iostream>
 #include <limits>
+#include <wrl.h>
+#include <shellapi.h>
 
 #include "Common.h"
 #include "Ray.h"
@@ -24,6 +26,10 @@ const Vector3 COLOR_2 = Vector3(36, 11, 54);
 const float INF = 1e9;
 
 const int MAX_DEPTH = 50;
+
+
+uint32_t clientWidth = 1280;
+uint32_t clientHeight = 720;
 
 
 // t: parameter to create a gradient effect on background.
@@ -61,7 +67,7 @@ Vector3 color(const Ray& r, Hitable* world, int depth) {
     }
 }
 
-int main() {
+int runWithoutGPU() {
     int nx = 600;
     int ny = 300;
     int ns = 100;
@@ -114,5 +120,43 @@ int main() {
 
     std::cerr << "Successfully populated the PPM file." << std::endl;
 
+    return 0;
+}
+
+bool ParseCommandLineArguments() {
+    int argc;
+    wchar_t** argv = ::CommandLineToArgvW(::GetCommandLineW(), &argc);
+
+    if (argc <= 1) {
+        std::cout << "No extra arguments provided. Initializing with default values." << std::endl;
+
+        ::LocalFree(argv);
+        return true;
+    }
+
+    for (size_t i = 1; i < argc; i++) {
+        if (::wcscmp(argv[i], L"-w") == 0 || ::wcscmp(argv[i], L"--width") == 0) {
+            clientWidth = ::wcstol(argv[++i], nullptr, 10);
+            continue;
+        }
+        if (::wcscmp(argv[i], L"-h") == 0 || ::wcscmp(argv[i], L"--height") == 0) {
+            clientHeight = ::wcstol(argv[++i], nullptr, 10);
+            continue;
+        }
+
+        std::cout << "Usage: Renderer.exe [options]" << std::endl;
+        std::cout << std::endl << "options:" << std::endl;
+        std::cout << "  -w  --width <value> \t Sets width to specific value" << std::endl;
+        std::cout << "  -h  --height <value> \t Sets height to specific value" << std::endl;
+
+        ::LocalFree(argv);
+        return false;
+    }
+
+    ::LocalFree(argv);
+    return true;
+}
+
+int main() {
     return 0;
 }
