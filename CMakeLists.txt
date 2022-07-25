@@ -17,6 +17,9 @@ set ( HEADER_FILES
     "inc/Material/Glass.h"
     "inc/Material/Metallic.h"
     "inc/Material/Scatterable.h"
+    "inc/Rendering/Renderer.h"
+    "inc/Rendering/Timer.h"
+    "inc/App.h"
 )
 
 set ( SRC_FILES
@@ -27,17 +30,16 @@ set ( SRC_FILES
     "src/Material/Diffuse.cpp"
     "src/Material/Glass.cpp"
     "src/Material/Metallic.cpp"
-)
-
-set ( PCH_HEADER_FILE
-    "inc/Common/pch.h"
+    "src/Rendering/Renderer.cpp"
+    "src/Rendering/Timer.cpp"
+    "src/App.cpp"
+    "src/RayTracing.cpp"
 )
 
 # add the executable
-add_executable(RayTracing src/RayTracing.cpp
+add_executable(RayTracing WIN32 src/RayTracing.cpp
     ${HEADER_FILES}
     ${SRC_FILES}
-    ${PCH_HEADER_FILE}
 )
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
@@ -47,8 +49,10 @@ endif()
 target_include_directories(RayTracing PUBLIC
     "${CMAKE_SOURCE_DIR}/inc/Common"
     "${CMAKE_SOURCE_DIR}/inc/DX"
-    "${CMAKE_SOURCE_DIR}/inc/Material"
     "${CMAKE_SOURCE_DIR}/inc/Geometry"
+    "${CMAKE_SOURCE_DIR}/inc/Material"
+    "${CMAKE_SOURCE_DIR}/inc/Rendering"
+    "${CMAKE_SOURCE_DIR}/inc"
 )
 
 # TODO: Add tests and install targets if needed.

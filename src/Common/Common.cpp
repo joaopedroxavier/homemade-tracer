@@ -8,4 +8,8 @@ float getRandomFloat() {
     return dis(e);
 }
 
+void ShowMessageOnConsole(std::string s) {
+    OutputDebugString(s.c_str());
+}
+
 } // namespace Common

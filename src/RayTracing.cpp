@@ -3,6 +3,7 @@
 #include <wrl.h>
 #include <shellapi.h>
 
+#include <App.h>
 #include "Common.h"
 #include "Ray.h"
 #include "Vector3.h"
@@ -128,8 +129,6 @@ bool ParseCommandLineArguments() {
     wchar_t** argv = ::CommandLineToArgvW(::GetCommandLineW(), &argc);
 
     if (argc <= 1) {
-        std::cout << "No extra arguments provided. Initializing with default values." << std::endl;
-
         ::LocalFree(argv);
         return true;
     }
@@ -144,11 +143,6 @@ bool ParseCommandLineArguments() {
             continue;
         }
 
-        std::cout << "Usage: Renderer.exe [options]" << std::endl;
-        std::cout << std::endl << "options:" << std::endl;
-        std::cout << "  -w  --width <value> \t Sets width to specific value" << std::endl;
-        std::cout << "  -h  --height <value> \t Sets height to specific value" << std::endl;
-
         ::LocalFree(argv);
         return false;
     }
@@ -157,6 +151,37 @@ bool ParseCommandLineArguments() {
     return true;
 }
 
-int main() {
+int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR commandLine, int showCommand) {
+#if defined(DEBUG) | defined(_DEBUG)
+    _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+#endif
+    if (!ParseCommandLineArguments()) {
+        return 0;
+    }
+
+    ShowMessageOnConsole("Initializing window with width " + std::to_string(clientWidth) + " and height " + std::to_string(clientHeight) + "\n");
+
+    std::unique_ptr<App> mainApp(new App(
+            instance, 
+            "RayTracingExample", 
+            "Real-Time 3D Rendering", 
+            showCommand, 
+            clientWidth, 
+            clientHeight
+        )
+    );
+
+    try {
+        mainApp->Run();
+    }
+    catch (std::exception ex) {
+        MessageBox(
+                mainApp->GetWindowHandle(), 
+                ex.what(), 
+                mainApp->GetWindowTitle().c_str(), 
+                MB_ABORTRETRYIGNORE
+        );
+    }
+
     return 0;
 }
