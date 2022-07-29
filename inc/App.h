@@ -1,52 +1,30 @@
 #pragma once
 
-#include <Timer.h>
-#include <Renderer.h>
+#include <Common.h>
+#include <Hitable.h>
 
-const int32_t defaultScreenWidth = 1280;
-const int32_t defaultScreenHeight = 720;
+const int32_t defaultSamplesPerPixel = 100;
 
 class App {
 public:
-    App(HINSTANCE instance, const std::string& windowClass, const std::string& windowTitle, 
-            uint32_t showCommand, int32_t width, int32_t height) :
-        _instance(instance), 
-        _windowClass(windowClass), 
-        _windowTitle(windowTitle), 
-        _showCommand(showCommand), 
-        _screenWidth(width), 
-        _screenHeight(height) {
-            InitializeWindow();
-    }
-
-    HINSTANCE GetInstance() const { return _instance; }
-    HWND GetWindowHandle() const{ return _windowHandle; }
-
-    const WNDCLASSEX& GetWindow() const { return _window; }
-    const std::string& GetWindowClass() const { return _windowClass; }
-    const std::string& GetWindowTitle() const { return _windowTitle; }
+    App(int32_t width, int32_t height, int32_t samplesPerPixel = defaultSamplesPerPixel) :
+        _screenWidth(width),
+        _screenHeight(height),
+        _samplesPerPixel(samplesPerPixel),
+        _world() {}
 
     int32_t GetScreenWidth() const { return _screenWidth; }
     int32_t GetScreenHeight() const { return _screenHeight; }
 
+    void Setup();
     void Run();
-    void InitializeWindow();
-
 private:
-    Rendering::Timer        _timer;
-    Rendering::Renderer     _renderer;
+    Geometry::Vector3 TraceRay(const Geometry::Ray& r, int depth);
 
-    HINSTANCE               _instance;
-    std::string             _windowClass;
-    std::string             _windowTitle;
-    uint32_t                _showCommand;
-    
-    HWND                    _windowHandle;
-    WNDCLASSEX              _window;
+    int32_t                                 _screenWidth;
+    int32_t                                 _screenHeight;
+    int32_t                                 _samplesPerPixel;
 
-    int32_t                 _screenWidth;
-    int32_t                 _screenHeight;
-
-    static LRESULT WINAPI WndProc(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
+    std::unique_ptr<Geometry::Hitable>      _world;
 };
 

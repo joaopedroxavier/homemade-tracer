@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Hitable.h"
+#include <Hitable.h>
 
 namespace Geometry {
 

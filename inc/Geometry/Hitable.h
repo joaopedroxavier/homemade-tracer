@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Vector3.h"
-#include "HitRecord.h"
-#include "Ray.h"
+#include <Vector3.h>
+#include <HitRecord.h>
+#include <Ray.h>
 
 namespace Geometry {
 

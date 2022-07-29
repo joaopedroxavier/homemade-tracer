@@ -1,19 +1,14 @@
-#include <cstdlib>
-#include <ctime>
-#include <cmath>
-#include <tuple>
-
-#include "Common.h"
-#include "Diffuse.h"
+#include <Common.h>
+#include <Diffuse.h>
 
 const float PI = acos(-1);
 
 namespace Material {
 
 Geometry::Vector3 randomInUnitSphere() {
-    float r = Common::getRandomFloat();
-    float theta = 2 * PI * Common::getRandomFloat();
-    float phi = 2 * PI * Common::getRandomFloat();
+    float r = Common::GetRandomFloat();
+    float theta = 2 * PI * Common::GetRandomFloat();
+    float phi = 2 * PI * Common::GetRandomFloat();
 
     return {
         r * cos(theta) * cos(phi),

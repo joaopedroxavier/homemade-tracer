@@ -1,8 +1,6 @@
 #pragma once
 
-#include <iostream>
-#include <cmath>
-#include <cstdlib>
+#include <Common.h>
 
 namespace Geometry {
 

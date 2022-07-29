@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Scatterable.h"
+#include <Scatterable.h>
 
 namespace Material {
 

@@ -1,6 +1,6 @@
-#include "Glass.h"
-#include "HitRecord.h"
-#include "Common.h"
+#include <Common.h>
+#include <Glass.h>
+#include <HitRecord.h>
 
 namespace Material {
 
@@ -34,7 +34,7 @@ ScatterRecord refract(Geometry::Vector3 l,
         reflectProb = 1.0;
     }
 
-    if (Common::getRandomFloat() < reflectProb) {
+    if (Common::GetRandomFloat() < reflectProb) {
         Geometry::Vector3 reflected = Geometry::reflect(l, rec.surfaceNormal);
         return {
             true,

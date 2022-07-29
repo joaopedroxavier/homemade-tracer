@@ -4,8 +4,6 @@ project(RayTracing LANGUAGES CXX)
 
 set ( HEADER_FILES
     "inc/Common/Common.h"
-    "inc/Common/Helpers.h"
-    "inc/DX/d3dx12.h"
     "inc/Geometry/Hitable.h"
     "inc/Geometry/HitableList.h"
     "inc/Geometry/HitRecord.h"
@@ -17,8 +15,6 @@ set ( HEADER_FILES
     "inc/Material/Glass.h"
     "inc/Material/Metallic.h"
     "inc/Material/Scatterable.h"
-    "inc/Rendering/Renderer.h"
-    "inc/Rendering/Timer.h"
     "inc/App.h"
 )
 
@@ -30,14 +26,12 @@ set ( SRC_FILES
     "src/Material/Diffuse.cpp"
     "src/Material/Glass.cpp"
     "src/Material/Metallic.cpp"
-    "src/Rendering/Renderer.cpp"
-    "src/Rendering/Timer.cpp"
     "src/App.cpp"
     "src/RayTracing.cpp"
 )
 
 # add the executable
-add_executable(RayTracing WIN32 src/RayTracing.cpp
+add_executable(RayTracing src/RayTracing.cpp
     ${HEADER_FILES}
     ${SRC_FILES}
 )
@@ -48,17 +42,9 @@ endif()
 
 target_include_directories(RayTracing PUBLIC
     "${CMAKE_SOURCE_DIR}/inc/Common"
-    "${CMAKE_SOURCE_DIR}/inc/DX"
     "${CMAKE_SOURCE_DIR}/inc/Geometry"
     "${CMAKE_SOURCE_DIR}/inc/Material"
-    "${CMAKE_SOURCE_DIR}/inc/Rendering"
     "${CMAKE_SOURCE_DIR}/inc"
 )
 
 # TODO: Add tests and install targets if needed.
-
-target_link_libraries( RayTracing 
-    d3d12.lib
-    dxgi.lib
-    dxguid.lib
-)

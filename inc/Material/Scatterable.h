@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Ray.h"
-#include "HitRecord.h"
+#include <Ray.h>
+#include <HitRecord.h>
 
 namespace Material {
 

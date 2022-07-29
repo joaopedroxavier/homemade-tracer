@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Ray.h"
-#include "Vector3.h"
-#include "Hitable.h"
-#include "Scatterable.h"
+#include <Ray.h>
+#include <Vector3.h>
+#include <Hitable.h>
+#include <Scatterable.h>
 
 namespace Material {
 
