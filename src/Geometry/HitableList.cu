@@ -1,8 +1,8 @@
-#include <HitableList.h>
+#include <HitableList.cuh>
 
 namespace Geometry {
 
-bool HitableList::hit(const Ray& r, float tMin, float tMax, HitRecord& record) const {
+__device__ bool HitableList::hit(const Ray& r, float tMin, float tMax, HitRecord& record) const {
     HitRecord tempRecord;
     bool hit = false;
     float closest = tMax;

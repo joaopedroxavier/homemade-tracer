@@ -1,18 +1,21 @@
 #pragma once
 
-#include <Ray.h>
-#include <Vector3.h>
+#define _USE_MATH_DEFINES
+#include <math.h>
+
+#include <Ray.cuh>
+#include <Vector3.cuh>
 
 namespace Material {
 
 class Camera {
 public:
-    Camera(Geometry::Vector3 lookFrom, 
+    __device__ Camera(Geometry::Vector3 lookFrom, 
             Geometry::Vector3 lookAt,
             Geometry::Vector3 upDirection,
             float vFOV, 
             float ratio) : verticalFOV(vFOV), aspectRatio(ratio) {
-        float angle = vFOV * 2.0 * Geometry::PI / 360.0;
+        float angle = vFOV * 2.0 * M_PI / 360.0;
         float height = 2.0 * tan(angle / 2.0);
         float width = height * aspectRatio;
 
@@ -26,7 +29,7 @@ public:
         vertical = height * y;
     }
 
-    Geometry::Ray getRay(float u, float v) { 
+    __device__ Geometry::Ray getRay(float u, float v) { 
         return Geometry::Ray(origin, lowerLeftCorner + u * horizontal + v * vertical - origin); 
     }
 

@@ -1,51 +1,49 @@
-#include <Sphere.h>
+#include <Sphere.cuh>
 
 namespace Geometry {
 
-// solveQuadraticEquation
-//
-// Solves ax^2 + bx + c = 0.
-// Parameters: a, b and c, the equation coefficients
-// Return values: 
-// - First integer contains the number of non-complex solutions
-// - floathe two other values are the solutions. If there is only one non-complex solution, both values are equal
-std::tuple<int, float, float> solveQuadraticEquation(float a, float b, float c) {
+struct QuadraticEquationAnswer {
+    __device__ QuadraticEquationAnswer(int roots, float firstRoot, float secondRoot) : numRoots(roots), firstRoot(firstRoot), secondRoot(secondRoot) {}
+    int numRoots;
+    float firstRoot;
+    float secondRoot;
+};
+
+__device__ QuadraticEquationAnswer solveQuadraticEquation(float a, float b, float c) {
     float disc = b * b - 4 * a * c;
+    float EPS = 1e-9;
 
     if (disc < -EPS) {
-        return std::make_tuple(0, float(0), float(0));
+        return QuadraticEquationAnswer(0, float(0), float(0));
     }
 
     float ans = -b / (2 * a);
     if (disc < EPS) {
-        return std::make_tuple(
-            1,
-            float(ans),
-            float(ans)
-        );
+        return QuadraticEquationAnswer(1, ans, ans);
     }
 
-    return std::make_tuple(
+    return QuadraticEquationAnswer(
         2,
         float(ans - (sqrt(disc) / (2 * a))),
         float(ans + (sqrt(disc) / (2 * a)))
     );
 }
 
-bool Sphere::hit(const Ray& r, float tMin, float tMax, HitRecord& record) const {
+__device__ bool Sphere::hit(const Ray& r, float tMin, float tMax, HitRecord& record) const {
     Vector3 OC = r.source() - center;
+    float EPS = 1e-9f;
 
-    auto parameters = solveQuadraticEquation(
+    QuadraticEquationAnswer solution = solveQuadraticEquation(
         r.direction() * r.direction(),
         2 * OC * r.direction(),
         OC * OC - radius * radius
     );
 
-    if (std::get<0>(parameters) == 0) {
+    if (solution.numRoots == 0) {
         return false;
     }
 
-    float firstSol = std::get<1>(parameters);
+    float firstSol = solution.firstRoot;
     if ((firstSol < tMax - EPS) && (firstSol > tMin + EPS)) {
         record.t = firstSol;
         record.hitPoint = r.at(firstSol);
@@ -54,7 +52,7 @@ bool Sphere::hit(const Ray& r, float tMin, float tMax, HitRecord& record) const 
         return true;
     }
 
-    float secondSol = std::get<2>(parameters);
+    float secondSol = solution.secondRoot;
     if ((secondSol < tMax - EPS) && (secondSol > tMin + EPS)) {
         record.t = secondSol;
         record.hitPoint = r.at(secondSol);

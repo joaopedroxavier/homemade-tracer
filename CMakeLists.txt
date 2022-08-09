@@ -1,50 +1,49 @@
 cmake_minimum_required(VERSION 3.13)
 
-project(RayTracing LANGUAGES CXX)
+project(RayTracing LANGUAGES CXX CUDA)
+
+set(CMAKE_CXX_STANDARD 20)
 
 set ( HEADER_FILES
-    "inc/Common/Common.h"
-    "inc/Geometry/Hitable.h"
-    "inc/Geometry/HitableList.h"
-    "inc/Geometry/HitRecord.h"
-    "inc/Geometry/Ray.h"
-    "inc/Geometry/Sphere.h"
-    "inc/Geometry/Vector3.h"
-    "inc/Material/Camera.h"
-    "inc/Material/Diffuse.h"
-    "inc/Material/Glass.h"
-    "inc/Material/Metallic.h"
-    "inc/Material/Scatterable.h"
-    "inc/App.h"
+    "inc/Geometry/Hitable.cuh"
+    "inc/Geometry/HitableList.cuh"
+    "inc/Geometry/HitRecord.cuh"
+    "inc/Geometry/Ray.cuh"
+    "inc/Geometry/Sphere.cuh"
+    "inc/Geometry/Vector3.cuh"
+    "inc/Material/Camera.cuh"
+    "inc/Material/Diffuse.cuh"
+    "inc/Material/Glass.cuh"
+    "inc/Material/Metallic.cuh"
+    "inc/Material/Scatterable.cuh"
 )
 
 set ( SRC_FILES
-    "src/Common/Common.cpp"
-    "src/Geometry/HitableList.cpp"
-    "src/Geometry/Sphere.cpp"
-    "src/Geometry/Vector3.cpp"
-    "src/Material/Diffuse.cpp"
-    "src/Material/Glass.cpp"
-    "src/Material/Metallic.cpp"
-    "src/App.cpp"
-    "src/RayTracing.cpp"
+    "src/Geometry/HitableList.cu"
+    "src/Geometry/Sphere.cu"
+    "src/Geometry/Vector3.cu"
+    "src/Material/Diffuse.cu"
+    "src/Material/Glass.cu"
+    "src/Material/Metallic.cu"
+    "src/RayTracing.cu"
 )
 
 # add the executable
-add_executable(RayTracing src/RayTracing.cpp
-    ${HEADER_FILES}
+add_executable(RayTracing src/RayTracing.cu
     ${SRC_FILES}
+    ${HEADER_FILES}
 )
 
-if (CMAKE_VERSION VERSION_GREATER 3.12)
-  set_property(TARGET RayTracing PROPERTY CXX_STANDARD 20)
-endif()
+set_target_properties( RayTracing 
+                       PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+
+set_target_properties(RayTracing PROPERTIES CUDA_ARCHITECTURES 61)
+SET(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}; -g; -G; -gencode arch=compute_61,code=sm_61;)
 
 target_include_directories(RayTracing PUBLIC
-    "${CMAKE_SOURCE_DIR}/inc/Common"
+    "${CMAKE_SOURCE_DIR}/inc/"
     "${CMAKE_SOURCE_DIR}/inc/Geometry"
     "${CMAKE_SOURCE_DIR}/inc/Material"
-    "${CMAKE_SOURCE_DIR}/inc"
 )
 
 # TODO: Add tests and install targets if needed.
