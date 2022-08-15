@@ -10,6 +10,7 @@ set ( HEADER_FILES
     "inc/Geometry/HitRecord.cuh"
     "inc/Geometry/Ray.cuh"
     "inc/Geometry/Sphere.cuh"
+    "inc/Geometry/Triangle.cuh"
     "inc/Geometry/Vector3.cuh"
     "inc/Material/Camera.cuh"
     "inc/Material/Diffuse.cuh"
@@ -21,6 +22,7 @@ set ( HEADER_FILES
 set ( SRC_FILES
     "src/Geometry/HitableList.cu"
     "src/Geometry/Sphere.cu"
+    "src/Geometry/Triangle.cu"
     "src/Geometry/Vector3.cu"
     "src/Material/Diffuse.cu"
     "src/Material/Glass.cu"

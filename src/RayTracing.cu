@@ -4,6 +4,7 @@
 #include <Glass.cuh>
 #include <Metallic.cuh>
 #include <Sphere.cuh>
+#include <Triangle.cuh>
 #include <Vector3.cuh>
 #include <Camera.cuh>
 
@@ -82,21 +83,34 @@ __global__ void initializeWorld(Geometry::Hitable** list,
     int maxX,
     int maxY) {
     list[0] = new Geometry::Sphere(
-        new Material::Metallic(Geometry::Vector3(0.5f, 0.5f, 0.8f)),
+        new Material::Metallic(Geometry::Vector3(0.2f, 0.2f, 0.2f)),
         Geometry::Vector3(0.0f, -200.5f, -1.0f),
         200.0f);
-    list[1] = new Geometry::Sphere(
-        new Material::Glass(1.51f), 
-        Geometry::Vector3(1.0f, 0.0f, -1.5f),
-        0.5f);
+    list[1] = new Geometry::Triangle(
+        new Material::Metallic(Geometry::Vector3(0.3f, 0.3f, 0.3f)),
+        Geometry::Vector3(4.0f, -0.5f, 0.0f),
+        Geometry::Vector3(-0.2f, 3.5f, 0.2f),
+        Geometry::Vector3(0.0f, -0.5f, -4.0f));
     list[2] = new Geometry::Sphere(
-        new Material::Diffuse(Geometry::Vector3(0.6f, 0.6f, 1.0f)),
-        Geometry::Vector3(-1.0f, 0.0f, -1.5f),
+        new Material::Glass(1.51f),
+        Geometry::Vector3(-0.5f, 0.0f, -0.5f),
+        0.5f);
+    list[3] = new Geometry::Sphere(
+        new Material::Glass(1.51f),
+        Geometry::Vector3(0.5f, 0.0f, -1.0f),
+        0.5f);
+    list[4] = new Geometry::Sphere(
+        new Material::Metallic(Geometry::Vector3(1.0f, 1.0f, 1.0f)),
+        Geometry::Vector3(-0.5f, 0.2f, -2.0f),
+        0.7f);
+    list[5] = new Geometry::Sphere(
+        new Material::Diffuse(Geometry::Vector3(0.9f, 0.1f, 0.1f)),
+        Geometry::Vector3(2.0f, 0.0f, 0.0f),
         0.5f);
 
-    *world = new Geometry::HitableList(list, 3);
+    *world = new Geometry::HitableList(list, 6);
     *camera = new Material::Camera(
-        Geometry::Vector3(2.5f, 2.0f, -1.5f),
+        Geometry::Vector3(0.0, 2.0f, 3.0f),
         Geometry::Vector3(0.0f, 0.0f, -1.5f),
         Geometry::Vector3(0.0f, 1.0f, 0.0f),
         90, float(maxX) / float(maxY));
@@ -130,7 +144,7 @@ __device__ Geometry::Vector3 traceRay(const Geometry::Ray& r, Geometry::Hitable*
             }
         }
         else {
-            Geometry::Vector3 unitDirection = r.direction() / !r.direction();
+            Geometry::Vector3 unitDirection = currentRay.direction() / !currentRay.direction();
             float t = 0.5f * (unitDirection.y() + 1.0f);
             return color ^ background(t);
         }
@@ -223,9 +237,9 @@ int main() {
         for (int i = 0; i < width; i++) {
             size_t index = j * width + i;
 
-            int ir = int(255.99 * pixelBuffer[index].r());
-            int ig = int(255.99 * pixelBuffer[index].g());
-            int ib = int(255.99 * pixelBuffer[index].b());
+            int ir = int(255.99f * pixelBuffer[index].r());
+            int ig = int(255.99f * pixelBuffer[index].g());
+            int ib = int(255.99f * pixelBuffer[index].b());
 
             std::cout << ir << " " << ig << " " << ib << std::endl;
         }
