@@ -9,13 +9,13 @@ class Scatterable;
 
 namespace Geometry {
 
-class Triangle : public Hitable {
+class Quadrilateral : public Hitable {
 public:
-    __device__ Triangle() : 
-            mat(nullptr), firstPoint(), secondPoint(), thirdPoint(), surfaceNormal() {}
+    __device__ Quadrilateral() : 
+            mat(nullptr), firstPoint(), secondPoint(), thirdPoint(), fourthPoint(), surfaceNormal() {}
 
-    __device__ Triangle(Material::Scatterable* mat, Vector3 p1, Vector3 p2, Vector3 p3) : 
-            mat(mat), firstPoint(p1), secondPoint(p2), thirdPoint(p3) {
+    __device__ Quadrilateral(Material::Scatterable* mat, Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4) : 
+            mat(mat), firstPoint(p1), secondPoint(p2), thirdPoint(p3), fourthPoint(p4) {
         Vector3 u = p2 - p1;
         Vector3 v = p3 - p1;
 
@@ -23,7 +23,7 @@ public:
         surfaceNormal = n / !n;
     }
 
-    ~Triangle() {
+    ~Quadrilateral() {
         delete mat;
     }
 
@@ -35,6 +35,7 @@ private:
     Vector3 firstPoint;
     Vector3 secondPoint;
     Vector3 thirdPoint;
+    Vector3 fourthPoint;
 
     Vector3 surfaceNormal;
 

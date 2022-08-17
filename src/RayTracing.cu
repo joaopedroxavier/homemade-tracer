@@ -5,6 +5,7 @@
 #include <Metallic.cuh>
 #include <Sphere.cuh>
 #include <Triangle.cuh>
+#include <Quadrilateral.cuh>
 #include <Vector3.cuh>
 #include <Camera.cuh>
 
@@ -62,8 +63,8 @@ bool parseCommandLineArguments(int& clientWidth, int& clientHeight, int& samples
 
 // t: parameter to create a gradient effect on background.
 __device__ Geometry::Vector3 background(float t) {
-    Geometry::Vector3 COLOR_1 = Geometry::Vector3(255.0f, 183.0f, 183.0f);
-    Geometry::Vector3 COLOR_2 = Geometry::Vector3(255.0f, 250.0f, 177.0f);
+    Geometry::Vector3 COLOR_1 = Geometry::Vector3(0.0f, 0.0f, 102.0f);
+    Geometry::Vector3 COLOR_2 = Geometry::Vector3(255.0f, 0.0f, 85.0f);
     Geometry::Vector3 col = COLOR_1 * (1.0f - t) + COLOR_2 * t;
 
     float brightness = 1.0f;
@@ -86,11 +87,12 @@ __global__ void initializeWorld(Geometry::Hitable** list,
         new Material::Metallic(Geometry::Vector3(0.2f, 0.2f, 0.2f)),
         Geometry::Vector3(0.0f, -200.5f, -1.0f),
         200.0f);
-    list[1] = new Geometry::Triangle(
+    list[1] = new Geometry::Quadrilateral(
         new Material::Metallic(Geometry::Vector3(0.3f, 0.3f, 0.3f)),
-        Geometry::Vector3(4.0f, -0.5f, 0.0f),
-        Geometry::Vector3(-0.2f, 3.5f, 0.2f),
-        Geometry::Vector3(0.0f, -0.5f, -4.0f));
+        Geometry::Vector3(8.0f, -0.5f, 3.0f),
+        Geometry::Vector3(8.0f, 3.5f, 3.0f),
+        Geometry::Vector3(0.0f, 3.5f, -5.0f), 
+        Geometry::Vector3(0.0f, -0.5f, -5.0f));
     list[2] = new Geometry::Sphere(
         new Material::Glass(1.51f),
         Geometry::Vector3(-0.5f, 0.0f, -0.5f),
@@ -107,8 +109,19 @@ __global__ void initializeWorld(Geometry::Hitable** list,
         new Material::Diffuse(Geometry::Vector3(0.9f, 0.1f, 0.1f)),
         Geometry::Vector3(2.0f, 0.0f, 0.0f),
         0.5f);
+    list[6] = new Geometry::Quadrilateral(
+        new Material::Metallic(Geometry::Vector3(0.3f, 0.3f, 0.3f)),
+        Geometry::Vector3(-0.0f, -0.5f, -5.0f), 
+        Geometry::Vector3(-0.0f, 3.5f, -5.0f), 
+        Geometry::Vector3(-8.0f, 3.5f, 3.0f),
+        Geometry::Vector3(-8.0f, -0.5f, 3.0f));
+    list[7] = new Geometry::Triangle(
+        new Material::Metallic(Geometry::Vector3(0.3f, 0.3f, 0.3f)),
+        Geometry::Vector3(0.0f, 3.5f, -5.0f),
+        Geometry::Vector3(8.1f, 3.5f, 3.0f),
+        Geometry::Vector3(-8.1f, 3.5f, 3.0f));
 
-    *world = new Geometry::HitableList(list, 6);
+    *world = new Geometry::HitableList(list, 8);
     *camera = new Material::Camera(
         Geometry::Vector3(0.0, 2.0f, 3.0f),
         Geometry::Vector3(0.0f, 0.0f, -1.5f),
