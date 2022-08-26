@@ -9,8 +9,8 @@ namespace Material {
 
 class Diffuse : public Scatterable {
 public:
-    __device__ Diffuse() : albedo() {}
-    __device__ Diffuse(Geometry::Vector3 c) : albedo(c) {}
+    __host__ __device__ Diffuse() : albedo() {}
+    __host__ __device__ Diffuse(Geometry::Vector3 c) : albedo(c) {}
 
     __device__ virtual bool scatter(
             const Geometry::Ray& r,

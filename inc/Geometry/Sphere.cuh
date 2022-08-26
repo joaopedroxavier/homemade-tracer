@@ -10,8 +10,8 @@ namespace Geometry {
 
 class Sphere : public Hitable {
 public:
-    __device__ Sphere() : mat(nullptr), center(), radius(0) {}
-    __device__ Sphere(Material::Scatterable* mat, Vector3 c, float r) : mat(mat), center(c), radius(r) {}
+    __host__ __device__ Sphere() : mat(nullptr), center(), radius(0) {}
+    __host__ __device__ Sphere(Vector3 c, float r, Material::Scatterable* mat = nullptr) : mat(mat), center(c), radius(r) {}
     ~Sphere() {
         delete mat;
     }

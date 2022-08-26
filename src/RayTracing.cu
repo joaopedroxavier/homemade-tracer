@@ -17,6 +17,10 @@
 #include <iostream>
 #include <wrl.h>
 #include <chrono>
+#include <vector>
+#include <sstream>
+#include <fstream>
+#include <filesystem>
 
 #define MINIMUM(a,b) ((a < b) ? (a) : (b))
 
@@ -63,8 +67,8 @@ bool parseCommandLineArguments(int& clientWidth, int& clientHeight, int& samples
 
 // t: parameter to create a gradient effect on background.
 __device__ Geometry::Vector3 background(float t) {
-    Geometry::Vector3 COLOR_1 = Geometry::Vector3(0.0f, 0.0f, 102.0f);
-    Geometry::Vector3 COLOR_2 = Geometry::Vector3(255.0f, 0.0f, 85.0f);
+    Geometry::Vector3 COLOR_1 = Geometry::Vector3(0.0f, 255.0f, 255.0f);
+    Geometry::Vector3 COLOR_2 = Geometry::Vector3(227.0f, 255.0f, 102.0f);
     Geometry::Vector3 col = COLOR_1 * (1.0f - t) + COLOR_2 * t;
 
     float brightness = 1.0f;
@@ -77,76 +81,137 @@ __device__ Geometry::Vector3 background(float t) {
     );
 }
 
+__host__ void loadObjData(std::ifstream& in, int*& faceTypes, Geometry::Vector3*& vertices, int& numVertices, int& numFaces) {
+    std::vector<Geometry::Vector3> vlist;
+    std::vector<Geometry::Vector3> positions(1);
+    std::vector<int> faces;
 
-__global__ void initializeWorld(Geometry::Hitable** list,
-    Geometry::Hitable** world,
-    Material::Camera** camera,
-    int maxX,
-    int maxY) {
-    list[0] = new Geometry::Sphere(
-        new Material::Metallic(Geometry::Vector3(0.2f, 0.2f, 0.2f)),
-        Geometry::Vector3(0.0f, -200.5f, -1.0f),
-        200.0f);
-    list[1] = new Geometry::Quadrilateral(
-        new Material::Metallic(Geometry::Vector3(0.3f, 0.3f, 0.3f)),
-        Geometry::Vector3(8.0f, -0.5f, 3.0f),
-        Geometry::Vector3(8.0f, 3.5f, 3.0f),
-        Geometry::Vector3(0.0f, 3.5f, -5.0f), 
-        Geometry::Vector3(0.0f, -0.5f, -5.0f));
-    list[2] = new Geometry::Sphere(
-        new Material::Glass(1.51f),
-        Geometry::Vector3(-0.5f, 0.0f, -0.5f),
-        0.5f);
-    list[3] = new Geometry::Sphere(
-        new Material::Glass(1.51f),
-        Geometry::Vector3(0.5f, 0.0f, -1.0f),
-        0.5f);
-    list[4] = new Geometry::Sphere(
-        new Material::Metallic(Geometry::Vector3(1.0f, 1.0f, 1.0f)),
-        Geometry::Vector3(-0.5f, 0.2f, -2.0f),
-        0.7f);
-    list[5] = new Geometry::Sphere(
-        new Material::Diffuse(Geometry::Vector3(0.9f, 0.1f, 0.1f)),
-        Geometry::Vector3(2.0f, 0.0f, 0.0f),
-        0.5f);
-    list[6] = new Geometry::Quadrilateral(
-        new Material::Metallic(Geometry::Vector3(0.3f, 0.3f, 0.3f)),
-        Geometry::Vector3(-0.0f, -0.5f, -5.0f), 
-        Geometry::Vector3(-0.0f, 3.5f, -5.0f), 
-        Geometry::Vector3(-8.0f, 3.5f, 3.0f),
-        Geometry::Vector3(-8.0f, -0.5f, 3.0f));
-    list[7] = new Geometry::Triangle(
-        new Material::Metallic(Geometry::Vector3(0.3f, 0.3f, 0.3f)),
-        Geometry::Vector3(0.0f, 3.5f, -5.0f),
-        Geometry::Vector3(8.1f, 3.5f, 3.0f),
-        Geometry::Vector3(-8.1f, 3.5f, 3.0f));
+    std::cerr << "Attempting to read file..." << std::endl;
+    std::string line;
+    while (std::getline(in, line)) {
+        std::istringstream lineSS(line);
+        std::string lineType;
+        lineSS >> lineType;
 
-    *world = new Geometry::HitableList(list, 8);
-    *camera = new Material::Camera(
-        Geometry::Vector3(0.0, 2.0f, 3.0f),
-        Geometry::Vector3(0.0f, 0.0f, -1.5f),
-        Geometry::Vector3(0.0f, 1.0f, 0.0f),
-        90, float(maxX) / float(maxY));
+        if (lineType == "v") {
+            float x, y, z, w;
+            lineSS >> x >> y >> z >> w;
+
+            positions.push_back(Geometry::Vector3(x, y, z));
+        }
+
+        if (lineType == "f") {
+            std::vector<int> refs;
+            std::string refStr;
+            while (lineSS >> refStr)
+            {
+                std::istringstream ref(refStr);
+                std::string vStr, vtStr, vnStr;
+                std::getline(ref, vStr, '/');
+                std::getline(ref, vtStr, '/');
+                std::getline(ref, vnStr, '/');
+                int v = atoi(vStr.c_str());
+                v = v >= 0 ? v : (int)positions.size() + v;
+                refs.push_back(v);
+            }
+
+            if (refs.size() == 3) {
+                vlist.push_back(positions[refs[0]]);
+                vlist.push_back(positions[refs[1]]);
+                vlist.push_back(positions[refs[2]]);
+                faces.push_back(1);
+            }
+            else if (refs.size() == 4) {
+                vlist.push_back(positions[refs[0]]);
+                vlist.push_back(positions[refs[1]]);
+                vlist.push_back(positions[refs[2]]);
+                vlist.push_back(positions[refs[3]]);
+                faces.push_back(2);
+            }
+
+            numFaces++;
+        }
+    }
+    std::cerr << "Finished reading file. Total faces: " << numFaces << std::endl;
+
+    numVertices = (int)vlist.size();
+
+    vertices = new Geometry::Vector3[numVertices];
+    faceTypes = new int[numFaces];
+
+    for (size_t i = 0; i < numVertices; i++) {
+        vertices[i] = vlist[i];
+    }
+
+    for (size_t i = 0; i < numFaces; i++) {
+        faceTypes[i] = faces[i];
+    }
 }
 
-__global__ void initializeRandomState(int maxX, int maxY, curandState* rng) {
+
+__global__ void initializeWorld(
+    Geometry::Hitable** world,
+    Geometry::Hitable** list,
+    Geometry::Vector3* vertices,
+    int* faceTypes,
+    int numFaces) {
+
+    int vIdx = 0;
+    for (int i = 0; i < numFaces; i++) {
+        if (faceTypes[i] == 1) {
+            list[i] = new Geometry::Triangle(vertices[vIdx],
+                vertices[vIdx + 1],
+                vertices[vIdx + 2],
+                new Material::Metallic(Geometry::Vector3(1.0f, 1.0f, 1.0f))
+            );
+            vIdx += 3;
+        }
+        if (faceTypes[i] == 2) {
+            list[i] = new Geometry::Quadrilateral(vertices[vIdx],
+                vertices[vIdx + 1],
+                vertices[vIdx + 2],
+                vertices[vIdx + 3],
+                new Material::Metallic(Geometry::Vector3(1.0f, 1.0f, 1.0f))
+            );
+            vIdx += 4;
+        }
+    }
+
+    list[numFaces] = new Geometry::Sphere(
+        Geometry::Vector3(0.0f, -20000.0f, 0.0f), 
+        20000.0f, 
+        new Material::Diffuse(Geometry::Vector3(0.4f, 0.4f, 0.9f))
+    );
+
+    *world = new Geometry::HitableList(list, numFaces+1);
+}
+
+__global__ void initializeCamera(Material::Camera** camera, int width, int height) {
+    *camera = new Material::Camera(
+        Geometry::Vector3(500.0, 2000.0f, 1500.0f),
+        Geometry::Vector3(0.0f, 0.0f, -1.0f),
+        Geometry::Vector3(0.0f, 1.0f, 0.0f),
+        90, float(width) / float(height));
+}
+
+__global__ void initializeRandomState(int width, int height, curandState* rng) {
     int i = threadIdx.x + blockIdx.x * blockDim.x;
     int j = threadIdx.y + blockIdx.y * blockDim.y;
-    if ((i >= maxX) || (j >= maxY)) {
+    if ((i >= width) || (j >= height)) {
         return;
     }
 
-    int index = j * maxX + i;
+    int index = j * width + i;
     unsigned long long seed = (unsigned long long)clock64();
     curand_init(seed, index, 0, &rng[index]);
 }
 
-__device__ Geometry::Vector3 traceRay(const Geometry::Ray& r, Geometry::Hitable** world, curandState* rng, int width, int height, int maxReflections) {
+__device__ Geometry::Vector3 traceRay(const Geometry::Ray& r, Geometry::Hitable* world, curandState* rng, int width, int height, int maxReflections) {
     Geometry::Vector3 color = Geometry::Vector3(1.0f, 1.0f, 1.0f);
     Geometry::Ray currentRay = r;
     for (int reflection = 0; reflection < maxReflections; reflection++) {
         Geometry::HitRecord rec;
-        if ((*world)->hit(currentRay, 0.001f, 1e9f, rec)) {
+        if ((world)->hit(currentRay, 0.001f, 1e9f, rec)) {
             Material::ScatterRecord sRec;
             if (rec.material->scatter(currentRay, rec, rng, sRec)) {
                 currentRay = sRec.scatteredRay;
@@ -181,7 +246,7 @@ __global__ void draw(Geometry::Vector3* buffer, Geometry::Hitable** world, Mater
         float v = float(j + curand_uniform(&localRng)) / float(height);
 
         Geometry::Ray r = (*cam)->getRay(u, v);
-        col += traceRay(r, world, &localRng, width, height, 50);
+        col += traceRay(r, *world, &localRng, width, height, 50);
     }
     col /= float(numSamples);
 
@@ -207,7 +272,7 @@ int main() {
     std::cerr << "Running path tracer to generate " <<
         width << "x" << height << " image " <<
         "using " << numThreadsX << "x" << numThreadsY << "-sized thread blocks " <<
-        "with " << samples << " samples per pixel" << std::endl; 
+        "with " << samples << " samples per pixel" << std::endl;
 
     Geometry::Vector3* pixelBuffer;
     curandState* rng;
@@ -216,15 +281,33 @@ int main() {
     checkCudaErrors(cudaMallocManaged((void**)&pixelBuffer, numPixels * sizeof(Geometry::Vector3)));
     checkCudaErrors(cudaMalloc((void**)&rng, numPixels * sizeof(curandState)));
 
-    Geometry::Hitable** list;
+    std::ifstream in("../models/deer.obj");
+    int* faceTypes;
+    Geometry::Vector3* vertices;
+
+    int numVertices = 0, numFaces = 0;
+    loadObjData(in, faceTypes, vertices, numVertices, numFaces);
+
     Geometry::Hitable** world;
+    Geometry::Hitable** list;
     Material::Camera** camera;
 
-    checkCudaErrors(cudaMalloc((void**)&list, 3 * sizeof(Geometry::Hitable*)));
     checkCudaErrors(cudaMalloc((void**)&world, sizeof(Geometry::Hitable*)));
+    checkCudaErrors(cudaMalloc((void**)&list, (numFaces+1) * sizeof(Geometry::Hitable*)));
     checkCudaErrors(cudaMalloc((void**)&camera, sizeof(Material::Camera*)));
 
-    initializeWorld << <1, 1 >> > (list, world, camera, width, height);
+    int* dFaceTypes;
+    Geometry::Vector3* dVertices;
+    checkCudaErrors(cudaMalloc((void**)&dFaceTypes, numFaces * sizeof(int)));
+    checkCudaErrors(cudaMalloc((void**)&dVertices, numVertices * sizeof(Geometry::Vector3)));
+    checkCudaErrors(cudaMemcpy(dFaceTypes, faceTypes, numFaces * sizeof(int), cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy(dVertices, vertices, numVertices * sizeof(Geometry::Vector3), cudaMemcpyHostToDevice));
+
+    initializeWorld << <1, 1 >> > (world, list, dVertices, dFaceTypes, numFaces);
+    checkCudaErrors(cudaDeviceSynchronize());
+    checkCudaErrors(cudaGetLastError());
+
+    initializeCamera << <1, 1 >> > (camera, width, height);
     checkCudaErrors(cudaDeviceSynchronize());
     checkCudaErrors(cudaGetLastError());
 
@@ -233,7 +316,7 @@ int main() {
     dim3 numBlocks(width / numThreadsX + 1, height / numThreadsY + 1);
     dim3 numThreads(numThreadsX, numThreadsY);
 
-    initializeRandomState<< <numBlocks, numThreads >> > (width, height, rng);
+    initializeRandomState << <numBlocks, numThreads >> > (width, height, rng);
     checkCudaErrors(cudaDeviceSynchronize());
     checkCudaErrors(cudaGetLastError());
 
@@ -260,16 +343,17 @@ int main() {
 
     checkCudaErrors(cudaDeviceSynchronize());
 
-    for (int i = 0; i < 3; i++) {
-        delete list[i];
-    }
-    delete* world;
-    delete* camera;
+    // free memory
+
+    delete vertices;
+    delete faceTypes;
 
     checkCudaErrors(cudaGetLastError());
-    checkCudaErrors(cudaFree(camera));
     checkCudaErrors(cudaFree(world));
     checkCudaErrors(cudaFree(list));
+    checkCudaErrors(cudaFree(camera));
+    checkCudaErrors(cudaFree(dVertices));
+    checkCudaErrors(cudaFree(dFaceTypes));
     checkCudaErrors(cudaFree(rng));
     checkCudaErrors(cudaFree(pixelBuffer));
 

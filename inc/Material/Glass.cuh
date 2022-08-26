@@ -6,8 +6,8 @@ namespace Material {
 
 class Glass : public Scatterable {
 public:
-    __device__ Glass() : refractionIndex() {}
-    __device__ Glass(float r) : refractionIndex(r) {}
+    __host__ __device__ Glass() : refractionIndex() {}
+    __host__ __device__ Glass(float r) : refractionIndex(r) {}
 
     __device__ virtual bool scatter(
         const Geometry::Ray& r,

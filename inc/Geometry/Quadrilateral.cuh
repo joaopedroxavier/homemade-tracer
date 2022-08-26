@@ -11,10 +11,10 @@ namespace Geometry {
 
 class Quadrilateral : public Hitable {
 public:
-    __device__ Quadrilateral() : 
+    __host__ __device__ Quadrilateral() : 
             mat(nullptr), firstPoint(), secondPoint(), thirdPoint(), fourthPoint(), surfaceNormal() {}
 
-    __device__ Quadrilateral(Material::Scatterable* mat, Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4) : 
+    __host__ __device__ Quadrilateral(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4, Material::Scatterable* mat = nullptr) : 
             mat(mat), firstPoint(p1), secondPoint(p2), thirdPoint(p3), fourthPoint(p4) {
         Vector3 u = p2 - p1;
         Vector3 v = p3 - p1;
@@ -38,8 +38,6 @@ private:
     Vector3 fourthPoint;
 
     Vector3 surfaceNormal;
-
-    __device__ bool liesInside(const Vector3& p) const;
 };
 
 } // namespace Geometry

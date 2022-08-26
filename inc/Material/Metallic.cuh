@@ -6,8 +6,8 @@ namespace Material {
 
 class Metallic : public Scatterable {
 public:
-    __device__ Metallic() : albedo() {}
-    __device__ Metallic(const Geometry::Vector3 a) : albedo(a) {}
+    __host__ __device__ Metallic() : albedo() {}
+    __host__ __device__ Metallic(const Geometry::Vector3 a) : albedo(a) {}
 
     __device__ virtual bool scatter(
             const Geometry::Ray& r,
